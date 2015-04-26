@@ -33,7 +33,16 @@ public class MainActivity extends ActionBarActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                animate();
+
+                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "squareX1", 50, 300);
+                toTheLeft.setDuration(1000);
+                toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        drawView.invalidate();
+                    }
+                });
+                toTheLeft.start();
             }
         });
 
@@ -70,38 +79,5 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-    boolean pressed;
-
-    public boolean onTouch(View v, MotionEvent event) {
-
-        //int action = event.getAction();
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                pressed = true;
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                //User is moving around on the screen
-                break;
-
-            case MotionEvent.ACTION_UP:
-                pressed = false;
-                break;
-        }
-        return pressed;
-    }
-    ObjectAnimator toTheLeft;
-    void animate(){
-
-        toTheLeft = ObjectAnimator.ofInt(drawView, "squareX1", 50, 300);
-        toTheLeft.setDuration(1000);
-        toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                drawView.invalidate();
-            }
-        });
-        toTheLeft.start();
     }
 }
