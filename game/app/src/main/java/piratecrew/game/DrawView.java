@@ -30,5 +30,7 @@ public class DrawView extends View {
 
     }
 
-
+    public void setSquareX1(int squareX1) {
+        this.squareX1 = squareX1;
+    }
 }

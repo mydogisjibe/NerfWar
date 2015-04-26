@@ -1,5 +1,6 @@
 package piratecrew.game;
 
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
@@ -32,10 +33,7 @@ public class MainActivity extends ActionBarActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "squareX1", 50, 0);
-                toTheLeft.setDuration(1000);
-                Log.v("Verbose", String.valueOf(drawView.squareX1));
-
+                animate();
             }
         });
 
@@ -92,5 +90,18 @@ public class MainActivity extends ActionBarActivity {
                 break;
         }
         return pressed;
+    }
+    ObjectAnimator toTheLeft;
+    void animate(){
+
+        toTheLeft = ObjectAnimator.ofInt(drawView, "squareX1", 50, 300);
+        toTheLeft.setDuration(1000);
+        toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                drawView.invalidate();
+            }
+        });
+        toTheLeft.start();
     }
 }
