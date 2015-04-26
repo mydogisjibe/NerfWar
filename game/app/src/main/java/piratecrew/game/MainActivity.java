@@ -39,42 +39,17 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         mSensorManager.registerListener(this, mSensor ,SensorManager.SENSOR_DELAY_GAME);
 
-        /*Button button = (Button)findViewById(R.id.button);
+        Button button = (Button)findViewById(R.id.shoot);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "posX", 80, 700);
-                toTheLeft.setDuration(1000);
-                toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        drawView.invalidate();
-                    }
-                });
-                toTheLeft.start();
+                //Todo: shooting code
             }
         });
-       Button button1 = (Button)findViewById(R.id.button2);
-        button1.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-
-                ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "posX", 700, 80);
-                toTheRight.setDuration(1000);
-                toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        drawView.invalidate();
-                    }
-                });
-                toTheRight.start();
-            }
-        });
-*/
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        p.addRule(RelativeLayout.ABOVE, R.id.button);
+        p.addRule(RelativeLayout.ABOVE, R.id.shoot);
         p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 
         ViewGroup mainView = (ViewGroup) findViewById(R.id.screen);
