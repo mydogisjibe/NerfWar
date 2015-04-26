@@ -31,6 +31,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     private Sensor mSensor;
     private byte tiltDirection;
     DrawView drawView;
+    ObjectAnimator boxSlider = new ObjectAnimator();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +44,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //Todo: shooting code
+                drawView.laserCreater();
             }
         });
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -60,6 +60,28 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        int x = (int)event.getX();
+        int y = (int)event.getY();
+        switch(event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if(y < findViewById(R.id.screen).getHeight()*2/3 &&
+                        x < findViewById(R.id.screen).getWidth()/2) {
+                    //Box moves at constant pps no mater where it is. Takes 2 sec from one end to the other.
+                    //time needed is the current position/totalWidth, though it is factored in that posX is the
+                    //center of the box and can't move to right or let all the way. This fraction is multiplied
+                    //by the amount of time needed to cross one side to the other.);
+                    boxSlider.cancel();
+                    animateBox(75, 2000 * (drawView.getPosX() - 30) / (drawView.getWidth() - 60));
+                }
+                else if(y < findViewById(R.id.screen).getHeight()*2/3 && x > findViewById(R.id.screen).getWidth()/2){
+                    boxSlider.cancel();
+                    animateBox(drawView.getWidth() - 75, 2000 * (1 - (drawView.getPosX() - 30) / (drawView.getWidth() - 60)));
+                }
+        }
+        return true;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -86,29 +108,24 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         float[] gravityData = event.values;
         float xGravityData = gravityData[0];
         if(xGravityData > 1.0){
-            ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "posX", 80, 700);
-            toTheLeft.setDuration(1000);
-            toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    drawView.invalidate();
-                }
-            });
-            toTheLeft.start();
         }
         else if (xGravityData < -1.0){
-            ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "posX", 700, 80);
-            toTheRight.setDuration(1000);
-            toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    drawView.invalidate();
-                }
-            });
+
         }
         else{
 
         }
+    }
+    private void animateBox(int endPos, int pps){ //Sets up animation for box with the given end position.
+        boxSlider = ObjectAnimator.ofInt(drawView, "posX", drawView.getPosX(), endPos);
+        boxSlider.setDuration(pps);
+        boxSlider.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                drawView.invalidate();
+            }
+        });
+        boxSlider.start();
     }
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
