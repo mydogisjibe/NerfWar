@@ -1,5 +1,6 @@
 package piratecrew.game;
 
+import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
@@ -32,10 +33,46 @@ public class MainActivity extends ActionBarActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "squareX1", 50, 0);
-                toTheLeft.setDuration(1000);
-                Log.v("Verbose", String.valueOf(drawView.squareX1));
 
+                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "pos1X", 80, 500);
+                toTheLeft.setDuration(1000);
+                toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        drawView.invalidate();
+                    }
+                });
+                toTheLeft.start();
+            }
+        });
+       Button button1 = (Button)findViewById(R.id.button2);
+        button1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                for(int i = 0; i <= 100 ; i++){
+                    ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "pos2X", 80, 900);
+                    toTheRight.setDuration(1000);
+                    toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(ValueAnimator animation) {
+                            drawView.invalidate();
+                        }
+                    });
+                    toTheRight.start();
+
+                }
+                /*
+                ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "pos1X", 700, 80);
+                toTheRight.setDuration(1000);
+                toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        drawView.invalidate();
+                    }
+                });
+                toTheRight.start();
+                */
             }
         });
 
@@ -72,25 +109,5 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-    boolean pressed;
-
-    public boolean onTouch(View v, MotionEvent event) {
-
-        //int action = event.getAction();
-        switch (event.getAction()){
-            case MotionEvent.ACTION_DOWN:
-                pressed = true;
-                break;
-
-            case MotionEvent.ACTION_MOVE:
-                //User is moving around on the screen
-                break;
-
-            case MotionEvent.ACTION_UP:
-                pressed = false;
-                break;
-        }
-        return pressed;
     }
 }

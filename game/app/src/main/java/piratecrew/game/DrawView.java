@@ -16,19 +16,33 @@ public class DrawView extends View {
     public DrawView(Context context) {
         super(context);
     }
-    public int squareX1 = 50,squareY1 = 50;
+    private int squareSize = 150;
+    private int pos1X = 500, pos1Y = 40,pos2X = 500,pos2Y = 500;
+
     @Override
     public void onDraw(Canvas canvas) {
-        paint.setColor(Color.BLACK);
-        paint.setStrokeWidth(3);
-        canvas.drawRect(squareX1,squareY1, 500, 500, paint);
-        paint.setStrokeWidth(2);
         paint.setColor(Color.CYAN);
-        canvas.drawRect(squareX1,squareY1, 500, 500, paint );
+        paint.setStrokeWidth(3);
+
+        float heightWidthRatio = getHeight()/getWidth();
+
+        canvas.drawRect(pos1X - squareSize, pos1Y - squareSize,
+                        pos1X + (squareSize), pos1Y + squareSize, paint);
+
+        canvas.drawRect(pos2X - squareSize, pos2Y - squareSize, pos2X + (squareSize),
+                        pos2Y + squareSize, paint);
+
 
 
 
     }
 
-
+    void setPos1X(int pos1X){
+        this.pos1X = pos1X;
+    }
+    void setPos2X(int pos2X) {this.pos2X = pos2X;}
+    void setPos1Y(int pos1Y){
+        this.pos1Y = pos1Y;
+    }
+    void setPos2Y(int pos2Y) {this.pos2Y = pos2Y;}
 }
