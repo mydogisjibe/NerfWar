@@ -15,7 +15,8 @@ public class MainMenu extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
-        Button button = (Button)findViewById(R.id.button);
+
+        Button button = (Button)findViewById(R.id.shoot);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

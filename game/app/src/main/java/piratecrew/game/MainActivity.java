@@ -4,8 +4,13 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,63 +27,20 @@ import android.widget.RelativeLayout;
 
 
 public class MainActivity extends ActionBarActivity {
-
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
     DrawView drawView;
-
+    ObjectAnimator boxSlider = new ObjectAnimator();
+    ObjectAnimator selfSlider = new ObjectAnimator();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button button = (Button)findViewById(R.id.button);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "pos1X", 80, 500);
-                toTheLeft.setDuration(1000);
-                toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        drawView.invalidate();
-                    }
-                });
-                toTheLeft.start();
-            }
-        });
-       Button button1 = (Button)findViewById(R.id.button2);
-        button1.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-
-                for(int i = 0; i <= 100 ; i++){
-                    ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "pos2X", 80, 900);
-                    toTheRight.setDuration(1000);
-                    toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animation) {
-                            drawView.invalidate();
-                        }
-                    });
-                    toTheRight.start();
-
-                }
-                /*
-                ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "pos1X", 700, 80);
-                toTheRight.setDuration(1000);
-                toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
-                        drawView.invalidate();
-                    }
-                });
-                toTheRight.start();
-                */
-            }
-        });
 
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        p.addRule(RelativeLayout.ABOVE, R.id.button);
+        p.addRule(RelativeLayout.ABOVE, R.id.shoot);
         p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 
         ViewGroup mainView = (ViewGroup) findViewById(R.id.screen);
@@ -86,9 +48,44 @@ public class MainActivity extends ActionBarActivity {
         drawView = new DrawView(this);
         //drawView.setBackgroundColor(Color.WHITE);
         mainView.addView(drawView, 0, p);
+
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Button button = (Button)findViewById(R.id.shoot);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawView.laserCreater();
+            }
+        });
+
+        selfAnimateBox(75, 3000);
     }
 
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event){
+        int x = (int)event.getX();
+        int y = (int)event.getY();
+        switch(event.getAction()){
+            case MotionEvent.ACTION_DOWN:
+                if(y < findViewById(R.id.screen).getHeight()*2/3 &&
+                        x < findViewById(R.id.screen).getWidth()/2) {
+                    //Box moves at constant pps no mater where it is. Takes 2 sec from one end to the other.
+                    //time needed is the current position/totalWidth, though it is factored in that posX is the
+                    //center of the box and can't move to right or let all the way. This fraction is multiplied
+                    //by the amount of time needed to cross one side to the other.);
+                    boxSlider.cancel();
+                    animateBox(75, 2000 * (drawView.user.getPosX() - 30) / (drawView.getWidth() - 60));
+                }
+                else if(y < findViewById(R.id.screen).getHeight()*2/3 && x > findViewById(R.id.screen).getWidth()/2){
+                    boxSlider.cancel();
+                    animateBox(drawView.getWidth() - 75, 2000 * (1 - (drawView.user.getPosX() - 30) / (drawView.getWidth() - 60)));
+                }
+        }
+        return true;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -109,5 +106,54 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    private void animateBox(int endPos, int pps){ //Sets up animation for box with the given end position.
+        boxSlider = ObjectAnimator.ofInt(drawView.user, "posX", drawView.user.getPosX(), endPos);
+        boxSlider.setDuration(pps);
+        boxSlider.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                drawView.invalidate();
+            }
+        });
+        boxSlider.start();
+    }
+    private void selfAnimateBox(int endPos, int pps){ //Sets up animation for box with the given end position.
+        selfSlider = ObjectAnimator.ofInt(drawView.auto, "posX", drawView.auto.getPosX(), endPos);
+        selfSlider.setDuration(pps);
+        selfSlider.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                drawView.invalidate();
+            }
+        });
+        selfSlider.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if(drawView.auto.getPosX() == 75)
+                    selfAnimateBox(drawView.getWidth() - 75, 3000);
+                else
+                    selfAnimateBox(75, 3000);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        selfSlider.start();
+    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }

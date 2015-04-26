@@ -4,11 +4,14 @@ package piratecrew.game;
  * Created by mgaim_000 on 4/25/2015.
  */
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.View;
+import java.util.ArrayList;
 
 public class DrawView extends View {
     Paint paint = new Paint();
@@ -16,33 +19,67 @@ public class DrawView extends View {
     public DrawView(Context context) {
         super(context);
     }
-    private int squareSize = 150;
-    private int pos1X = 500, pos1Y = 40,pos2X = 500,pos2Y = 500;
-
+    Box user = new Box(500, 100);
+    Box auto = new Box(500, 1000);
     @Override
     public void onDraw(Canvas canvas) {
         paint.setColor(Color.CYAN);
         paint.setStrokeWidth(3);
 
-        float heightWidthRatio = getHeight()/getWidth();
+        user.draw(canvas, paint);
 
-        canvas.drawRect(pos1X - squareSize, pos1Y - squareSize,
-                        pos1X + (squareSize), pos1Y + squareSize, paint);
-
-        canvas.drawRect(pos2X - squareSize, pos2Y - squareSize, pos2X + (squareSize),
-                        pos2Y + squareSize, paint);
-
-
-
+        auto.draw(canvas, paint);
+        for (int i = 0; i < lasers.size(); i++) {
+            lasers.get(i).sketch(canvas);
+            if (lasers.get(i).pos > getHeight()) {
+                laserAnimators.remove(i);
+                lasers.remove(i);
+            }
+        }
 
     }
 
-    void setPos1X(int pos1X){
-        this.pos1X = pos1X;
+    public void laserCreater(){
+        Laser laser = new Laser();
+        lasers.add(laser);
+        ObjectAnimator laserMover = ObjectAnimator.ofInt(laser, "pos", laser.getPos(), 10_000);
+        laserMover.setDuration(500);
+        laserMover.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                invalidate();
+            }
+        });
+        laserMover.start();
+        laserAnimators.add(laserMover);
     }
-    void setPos2X(int pos2X) {this.pos2X = pos2X;}
-    void setPos1Y(int pos1Y){
-        this.pos1Y = pos1Y;
+
+
+
+
+    ArrayList<Laser> lasers = new ArrayList<Laser>();
+    ArrayList<ObjectAnimator> laserAnimators = new ArrayList<ObjectAnimator>();
+
+
+
+    public class Laser{
+        int x;
+        int pos = 130; //posY + squareSize
+        public Laser(){
+            x = user.getPosX();
+        }
+        void sketch(Canvas canvas){
+            Paint redPaint = new Paint();
+            redPaint.setColor(Color.RED);
+            canvas.drawRect(x-5, pos,
+                    x+5, pos+60, redPaint);
+
+        }
+        void setPos(int pos){
+            this.pos = pos;
+        }
+        int getPos(){
+            return pos;
+        }
     }
-    void setPos2Y(int pos2Y) {this.pos2Y = pos2Y;}
 }
