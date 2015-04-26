@@ -50,13 +50,12 @@ public class MainActivity extends ActionBarActivity {
         mainView.addView(drawView, 0, p);
 
 
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
         Button button = (Button)findViewById(R.id.shoot);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                drawView.laserCreater();
+                drawView.laserCreater(true);
             }
         });
 
@@ -125,6 +124,8 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 drawView.invalidate();
+                if (drawView.auto.getPosX() % 50 == 0)
+                    drawView.laserCreater(false);
             }
         });
         selfSlider.addListener(new Animator.AnimatorListener() {

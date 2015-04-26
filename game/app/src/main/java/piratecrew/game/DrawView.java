@@ -39,11 +39,15 @@ public class DrawView extends View {
 
     }
 
-    public void laserCreater(){
-        Laser laser = new Laser();
+    public void laserCreater(boolean goingDown){
+        Laser laser = new Laser(goingDown);
         lasers.add(laser);
-        ObjectAnimator laserMover = ObjectAnimator.ofInt(laser, "pos", laser.getPos(), 10_000);
-        laserMover.setDuration(500);
+        ObjectAnimator laserMover;
+        if(goingDown)
+            laserMover = ObjectAnimator.ofInt(laser, "pos", laser.getPos(), 10_000);
+        else
+            laserMover = ObjectAnimator.ofInt(laser, "pos", laser.getPos(), -10_000);
+        laserMover.setDuration(1000);
         laserMover.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -65,8 +69,13 @@ public class DrawView extends View {
     public class Laser{
         int x;
         int pos = 130; //posY + squareSize
-        public Laser(){
-            x = user.getPosX();
+        public Laser( boolean from){
+            if(from) //If froma real user
+                x = user.getPosX();
+            else {
+                x = auto.getPosX();
+                pos = auto.getPosY() - 30;
+            }
         }
         void sketch(Canvas canvas){
             Paint redPaint = new Paint();
