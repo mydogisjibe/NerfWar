@@ -4,8 +4,13 @@ import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.app.ActionBar;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Canvas;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,15 +26,20 @@ import android.graphics.Color;
 import android.widget.RelativeLayout;
 
 
-public class MainActivity extends ActionBarActivity {
-
+public class MainActivity extends ActionBarActivity implements SensorEventListener {
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
+    private byte tiltDirection;
     DrawView drawView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button button = (Button)findViewById(R.id.button);
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(this, mSensor ,SensorManager.SENSOR_DELAY_GAME);
+
+        /*Button button = (Button)findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,7 +71,7 @@ public class MainActivity extends ActionBarActivity {
                 toTheRight.start();
             }
         });
-
+*/
         RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         p.addRule(RelativeLayout.ABOVE, R.id.button);
@@ -95,5 +105,38 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onSensorChanged(SensorEvent event){
+        float[] gravityData = event.values;
+        float xGravityData = gravityData[0];
+        if(xGravityData > 1.0){
+            ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "posX", 80, 700);
+            toTheLeft.setDuration(1000);
+            toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    drawView.invalidate();
+                }
+            });
+            toTheLeft.start();
+        }
+        else if (xGravityData < -1.0){
+            ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "posX", 700, 80);
+            toTheRight.setDuration(1000);
+            toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    drawView.invalidate();
+                }
+            });
+        }
+        else{
+
+        }
+    }
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
