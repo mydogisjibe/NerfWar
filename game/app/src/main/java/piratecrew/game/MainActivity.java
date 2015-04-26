@@ -34,7 +34,7 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
 
-                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "squareX1", 50, 300);
+                ObjectAnimator toTheLeft = ObjectAnimator.ofInt(drawView, "posX", 80, 700);
                 toTheLeft.setDuration(1000);
                 toTheLeft.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
@@ -43,6 +43,22 @@ public class MainActivity extends ActionBarActivity {
                     }
                 });
                 toTheLeft.start();
+            }
+        });
+       Button button1 = (Button)findViewById(R.id.button2);
+        button1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+                ObjectAnimator toTheRight = ObjectAnimator.ofInt(drawView, "posX", 700, 80);
+                toTheRight.setDuration(1000);
+                toTheRight.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        drawView.invalidate();
+                    }
+                });
+                toTheRight.start();
             }
         });
 
